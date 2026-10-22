@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>@decky/ui Component Demo — Harness</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0e141b; color: #fff; font-family: "Motiva Sans", sans-serif; }
+      #harness-root { min-height: 100%; }
+      #boot-status { padding: 16px; font-family: monospace; white-space: pre-wrap; color: #9fdc9f; }
+      #boot-status.error { color: #ff8080; }
+    </style>
+  </head>
+  <body>
+    <div id="boot-status">booting SteamUI…</div>
+    <!--
+      Deliberately NOT id="root": SteamUI's own real index.html (whose
+      scripts boot.ts loads) also targets document.getElementById('root')
+      for its own app's mount point. Reusing that id here meant our React
+      tree and SteamUI's own (broken, uninteresting to us, but still
+      running) React tree were fighting over the same DOM node — surfaced
+      as a `removeChild` "node is not a child of this node" crash the first
+      time a page swap caused enough churn for the two trees' reconciliation
+      to collide. Keeping our own mount point under a distinct id lets
+      SteamUI's app do whatever it wants to *its* #root, undisturbed.
+    -->
+    <div id="harness-root"></div>
+    <script type="module" src="./boot.ts"></script>
+  </body>
+</html>

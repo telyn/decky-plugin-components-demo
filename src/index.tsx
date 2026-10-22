@@ -1,115 +1,133 @@
+import { useState } from "react";
 import {
   ButtonItem,
+  ErrorBoundary,
   PanelSection,
   PanelSectionRow,
+  SliderField,
+  ToggleField,
+  ProgressBarItem,
   Navigation,
-  staticClasses
+  staticClasses,
 } from "@decky/ui";
-import {
-  addEventListener,
-  removeEventListener,
-  callable,
-  definePlugin,
-  toaster,
-  // routerHook
-} from "@decky/api"
-import { useState } from "react";
+import { definePlugin, routerHook } from "@decky/api";
 import { FaShip } from "react-icons/fa";
+import DemoRoute from "./DemoRoute";
 
-// import logo from "../assets/logo.png";
+const DEMO_ROUTE = "/decky-components-demo";
 
-// This function calls the python function "add", which takes in two numbers and returns their sum (as a number)
-// Note the type annotations:
-//  the first one: [first: number, second: number] is for the arguments
-//  the second one: number is for the return value
-const add = callable<[first: number, second: number], number>("add");
+function goToFullDemo() {
+  // Guarded: Navigation is a @decky/ui module-scraped export and can
+  // legitimately be undefined on a given SteamUI build.
+  Navigation?.Navigate?.(DEMO_ROUTE);
+  Navigation?.CloseSideMenus?.();
+}
 
-// This function calls the python function "start_timer", which takes in no arguments and returns nothing.
-// It starts a (python) timer which eventually emits the event 'timer_event'
-const startTimer = callable<[], void>("start_timer");
-
+/**
+ * The Quick Access Menu panel content. Kept short: an intro blurb, a button
+ * to jump to the full-screen route (all 9 component groups live there),
+ * and a couple of genuinely QAM-only components (PanelSection/
+ * PanelSectionRow themselves, plus a couple of controls that only really
+ * make sense demoed in their native narrow-panel habitat) so this panel
+ * isn't just a single button.
+ */
 function Content() {
-  const [result, setResult] = useState<number | undefined>();
+  const [sliderValue, setSliderValue] = useState(50);
+  const [toggleValue, setToggleValue] = useState(true);
 
-  const onClick = async () => {
-    const result = await add(Math.random(), Math.random());
-    setResult(result);
-  };
+  // PanelSection/PanelSectionRow are about as fundamental as @decky/ui gets
+  // — every real decky loader install has them — so this guard is really
+  // about tests/frontend/harness's own module-scrape timing (its
+  // "wait for chunk quiescence" heuristic doesn't always let SteamUI finish
+  // loading every lazy module before boot.ts hands off), not something
+  // expected to trigger on an actual device. Guarded anyway so a slow boot
+  // in the harness degrades to plain divs instead of crashing outright.
+  const Section = PanelSection ?? "div";
+  const Row = PanelSectionRow ?? "div";
 
   return (
-    <PanelSection title="Panel Section">
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={onClick}
-        >
-          {result ?? "Add two numbers via Python"}
-        </ButtonItem>
-      </PanelSectionRow>
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => startTimer()}
-        >
-          {"Start Python timer"}
-        </ButtonItem>
-      </PanelSectionRow>
-
-      {/* <PanelSectionRow>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={logo} />
+    <Section title="decky/ui Components Demo">
+      <Row>
+        <div style={{ fontSize: 13, opacity: 0.85 }}>
+          This plugin demos every component in @decky/ui. This panel shows
+          a couple of QAM-native controls; the rest live in the full-screen
+          demo.
         </div>
-      </PanelSectionRow> */}
+      </Row>
 
-      {/*<PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Navigation.Navigate("/decky-plugin-test");
-            Navigation.CloseSideMenus();
-          }}
-        >
-          Router
-        </ButtonItem>
-      </PanelSectionRow>*/}
-    </PanelSection>
+      <Row>
+        {ButtonItem ? (
+          // Wrapped individually: ButtonItem can resolve (be non-undefined)
+          // but still throw at render time on a given SteamUI build, and we
+          // don't want that taking the rest of this panel down with it.
+          <ErrorBoundary>
+            <ButtonItem layout="below" onClick={goToFullDemo}>
+              Open full component demo
+            </ButtonItem>
+          </ErrorBoundary>
+        ) : (
+          <button onClick={goToFullDemo} style={{ width: "100%" }}>
+            Open full component demo
+          </button>
+        )}
+      </Row>
+
+      {SliderField && (
+        <Row>
+          <ErrorBoundary>
+            <SliderField
+              label="Example slider"
+              value={sliderValue}
+              min={0}
+              max={100}
+              step={1}
+              showValue
+              onChange={setSliderValue}
+            />
+          </ErrorBoundary>
+        </Row>
+      )}
+
+      {ToggleField && (
+        <Row>
+          <ErrorBoundary>
+            <ToggleField
+              label="Example toggle"
+              checked={toggleValue}
+              onChange={setToggleValue}
+            />
+          </ErrorBoundary>
+        </Row>
+      )}
+
+      {ProgressBarItem && (
+        <Row>
+          <ErrorBoundary>
+            <ProgressBarItem label="Example progress" nProgress={sliderValue} />
+          </ErrorBoundary>
+        </Row>
+      )}
+    </Section>
   );
-};
+}
 
 export default definePlugin(() => {
-  console.log("Template plugin initializing, this is called once on frontend startup")
-
-  // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-  //   exact: true,
-  // });
-
-  // Add an event listener to the "timer_event" event from the backend
-  const listener = addEventListener<[
-    test1: string,
-    test2: boolean,
-    test3: number
-  ]>("timer_event", (test1, test2, test3) => {
-    console.log("Template got timer_event with:", test1, test2, test3)
-    toaster.toast({
-      title: "template got timer_event",
-      body: `${test1}, ${test2}, ${test3}`
-    });
-  });
+  routerHook.addRoute(DEMO_ROUTE, DemoRoute, { exact: true });
 
   return {
     // The name shown in various decky menus
-    name: "Test Plugin",
+    name: "decky/ui Components Demo",
     // The element displayed at the top of your plugin's menu
-    titleView: <div className={staticClasses.Title}>Decky Example Plugin</div>,
+    titleView: (
+      <div className={staticClasses?.Title}>decky/ui Components Demo</div>
+    ),
     // The content of your plugin's menu
     content: <Content />,
     // The icon displayed in the plugin list
     icon: <FaShip />,
     // The function triggered when your plugin unloads
     onDismount() {
-      console.log("Unloading")
-      removeEventListener("timer_event", listener);
-      // serverApi.routerHook.removeRoute("/decky-plugin-test");
+      routerHook.removeRoute(DEMO_ROUTE);
     },
   };
 });
