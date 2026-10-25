@@ -1,7 +1,7 @@
 {
-  "name": "decky-plugin-template",
+  "name": "decky-plugin-components-demo",
   "version": "0.0.1",
-  "description": "A template to quickly create decky plugins from scratch, based on TypeScript and webpack",
+  "description": "A decky-loader plugin demoing the components exported by @decky/ui, with live examples and source",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -12,21 +12,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SteamDeckHomebrew/decky-plugin-template.git"
+    "url": "git+https://github.com/telyn/decky-plugin-components-demo.git"
   },
   "keywords": [
     "decky",
     "plugin",
-    "plugin-template",
     "steam-deck",
-    "deck"
+    "deck",
+    "decky-ui",
+    "components",
+    "demo"
   ],
-  "author": "You <you@you.tld>",
+  "author": "Telyn Z. <175827+telyn@users.noreply.github.com>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/SteamDeckHomebrew/decky-plugin-template/issues"
+    "url": "https://github.com/telyn/decky-plugin-components-demo/issues"
   },
-  "homepage": "https://github.com/SteamDeckHomebrew/decky-plugin-template#readme",
+  "homepage": "https://github.com/telyn/decky-plugin-components-demo#readme",
   "devDependencies": {
     "@decky/rollup": "^1.0.2",
     "@decky/ui": "^4.12.0",

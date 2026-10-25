@@ -1,11 +1,11 @@
 {
-  "name": "Example Plugin",
-  "author": "John Doe",
+  "name": "decky/ui Components Demo",
+  "author": "Telyn Z.",
   "flags": ["debug", "_root"],
   "api_version": 1,
   "publish": {
-    "tags": ["template", "root"],
-    "description": "Decky example plugin.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "tags": ["demo", "developer", "root"],
+    "description": "Live examples and source for the components exported by @decky/ui.",
+    "image": "https://raw.githubusercontent.com/telyn/decky-plugin-components-demo/main/assets/logo.png"
   }
 }
